@@ -1,0 +1,139 @@
+-- Services
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+
+-- ScreenGui
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "Z7F_3DADK_GUI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game.CoreGui
+
+-- Main Frame
+local Frame = Instance.new("Frame")
+Frame.Parent = ScreenGui
+Frame.Size = UDim2.new(0, 200, 0, 100) -- عرض أقل وطول مناسب
+Frame.Position = UDim2.new(0.5, -100, 0.5, -50)
+Frame.BackgroundColor3 = Color3.fromRGB(0,0,0)
+Frame.BorderSizePixel = 0
+Frame.Active = true
+
+-- Corner
+local Corner = Instance.new("UICorner")
+Corner.CornerRadius = UDim.new(0, 14)
+Corner.Parent = Frame
+
+------------------------------------------------
+-- Shadow (ناعم ومناسب)
+------------------------------------------------
+local Shadow = Instance.new("ImageLabel")
+Shadow.Parent = Frame
+Shadow.AnchorPoint = Vector2.new(0.5, 0.5)
+Shadow.Position = UDim2.new(0.5, 0, 0.5, 0)
+Shadow.Size = UDim2.new(1, 20, 1, 20) -- مناسب للجياوي
+Shadow.BackgroundTransparency = 1
+Shadow.Image = "rbxassetid://1316045217"
+Shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+Shadow.ImageTransparency = 0.4 -- حواف ناعمة
+Shadow.ZIndex = 0
+
+Frame.ZIndex = 1
+
+------------------------------------------------
+-- Title
+------------------------------------------------
+local Title = Instance.new("TextLabel")
+Title.Parent = Frame
+Title.Size = UDim2.new(1, -20, 0, 36)
+Title.Position = UDim2.new(0, 10, 0, 10)
+Title.BackgroundTransparency = 1
+Title.Text = "Z7F | 3DADK"
+Title.TextColor3 = Color3.fromRGB(255,255,255)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 20
+Title.TextXAlignment = Enum.TextXAlignment.Center
+
+------------------------------------------------
+-- Time Line (تحت العنوان مباشرة)
+------------------------------------------------
+local TimeLine = Instance.new("TextLabel")
+TimeLine.Parent = Frame
+TimeLine.Size = UDim2.new(1, -20, 0, 24)
+TimeLine.Position = UDim2.new(0, 10, 0, 44) -- قريب جداً من العنوان
+TimeLine.BackgroundTransparency = 1
+TimeLine.Text = "مـدة صـمـلـتـك بـ سـيـرفـر | h,00 m,00 s,00"
+TimeLine.TextColor3 = Color3.fromRGB(180,180,180)
+TimeLine.Font = Enum.Font.Gotham
+TimeLine.TextSize = 14
+TimeLine.TextXAlignment = Enum.TextXAlignment.Center
+
+------------------------------------------------
+-- Timer
+------------------------------------------------
+local startTime = os.time()
+task.spawn(function()
+	while true do
+		local elapsed = os.time() - startTime
+		local h = math.floor(elapsed / 3600)
+		local m = math.floor((elapsed % 3600) / 60)
+		local s = elapsed % 60
+
+		TimeLine.Text = string.format(
+			"مـدة صـمـلـتـك بـ سـيـرفـر | h,%02d m,%02d s,%02d",
+			h, m, s
+		)
+
+		task.wait(1)
+	end
+end)
+
+------------------------------------------------
+-- Drag (Mouse + Mobile)
+------------------------------------------------
+local dragging = false
+local dragStart, startPos
+
+local function update(input)
+	local delta = input.Position - dragStart
+	Frame.Position = UDim2.new(
+		startPos.X.Scale,
+		startPos.X.Offset + delta.X,
+		startPos.Y.Scale,
+		startPos.Y.Offset + delta.Y
+	)
+end
+
+Frame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1
+	or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragStart = input.Position
+		startPos = Frame.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+Frame.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement
+	or input.UserInputType == Enum.UserInputType.Touch then
+		if dragging then
+			update(input)
+		end
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if dragging and (
+		input.UserInputType == Enum.UserInputType.MouseMovement
+		or input.UserInputType == Enum.UserInputType.Touch
+	) then
+		update(input)
+	end
+end)
